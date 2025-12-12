@@ -8,6 +8,7 @@ use App\Http\Requests\OrderRequest;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderItemOption;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -39,12 +40,18 @@ class AdminOrderController extends Controller
             return redirect()->back()->withErrors(['error' => "Cart Is Empty , Add Your Product"]);  
         }
 
+        $additonal_cost = Setting::first();
         $order = Order::create([
             'user_id'       => $cart->user_id,
-            'price'         => $cart->price,
+            'items_price'         => $cart->price,
             'phone'         => $validated_data['phone'],
             'address'       => $validated_data['address']??$request->user()->address,
-            'payment_method_id' => $validated_data['payment_method']
+            'payment_method_id' => $validated_data['payment_method'],
+            'taxes'             => $additonal_cost->taxes??0,
+            'delivery_fees'     => $additonal_cost->delivery_fees??0,
+            'coupon_id'         => $cart->coupon_id??null,
+            'coupon_discount'   => $cart->coupon_discount??0,
+            'Final_price'       => $cart->price + $additonal_cost->taxes+ $additonal_cost->delivery_fees - $cart->coupon_discount,
         ]);
 
         if($request->has('set_as_prefer') && $request->set_as_prefer == true)

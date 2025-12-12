@@ -15,7 +15,7 @@ class UserController extends Controller
             ->Orwhere('email' , $request->search);
         })->get();
 
-        $users_count = User::count();
+        $users_count  = User::count();
         $active_users = User::where('is_bolcked' , false)->count();
         $blocked_users = User::where('is_bolcked' , true)->count();
         
